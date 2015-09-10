@@ -2,7 +2,6 @@ package org.ansj.elasticsearch.pubsub.redis;
 
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
-
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -67,8 +66,9 @@ public class RedisPoolBuilder {
         return password;
     }
 
-    public void setPassword(String password) {
+    public RedisPoolBuilder setPassword(String password) {
         this.password = password;
+        return this;
     }
 
     public JedisPool jedisPool(){
@@ -78,11 +78,11 @@ public class RedisPoolBuilder {
 		config.setMaxTotal(getMaxWait());
 		config.setTestOnBorrow(isTestOnBorrow());
 		String[] ipAndPort = getIpAddress().split(":");
-		String ip="";
-		int port=0;
-		if(ipAndPort.length==1){
-			ip=ipAndPort[0];
-			port = getPort();
+        String ip;
+        int port;
+        if (ipAndPort.length == 1) {
+            ip = ipAndPort[0];
+            port = getPort();
 		}else{
 			ip=ipAndPort[0];
 			port = Integer.valueOf(ipAndPort[1]);
