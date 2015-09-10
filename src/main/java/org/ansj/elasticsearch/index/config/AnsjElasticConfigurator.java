@@ -1,14 +1,5 @@
 package org.ansj.elasticsearch.index.config;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.HashSet;
-import java.util.Set;
-
-
 import org.ansj.elasticsearch.pubsub.redis.AddTermRedisPubSub;
 import org.ansj.elasticsearch.pubsub.redis.RedisPoolBuilder;
 import org.ansj.elasticsearch.pubsub.redis.RedisUtils;
@@ -18,14 +9,16 @@ import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
-
 import org.nlpcn.commons.lang.util.IOUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
+
 public class AnsjElasticConfigurator {
-    public static ESLogger logger = Loggers.getLogger("ansj-analyzer");
-    private static boolean loaded = false;
+    private static final ESLogger logger = Loggers.getLogger(AnsjElasticConfigurator.class);
     public static Set<String> filter;
     public static boolean pstemming = false;
     public static Environment environment;
@@ -35,6 +28,7 @@ public class AnsjElasticConfigurator {
     public static boolean DEFAULT_IS_NAME_RECOGNITION = true;
     public static boolean DEFAULT_IS_NUM_RECOGNITION = true;
     public static boolean DEFAUT_IS_QUANTIFIE_RRECOGNITION = true;
+    private static boolean loaded = false;
 
     public static void init(Settings indexSettings, Settings settings) {
     	if (isLoaded()) {
@@ -48,9 +42,9 @@ public class AnsjElasticConfigurator {
         }
         try{
         	preheat();
-        	logger.info("ansj分词器预热完毕，可以使用!");
+            logger.info("ansj seg preheat ok.");
         }catch(Exception e){
-        	logger.error("ansj分词预热失败，请检查路径");
+            logger.error("ansj seg preheat failed check file exists.");
         }
         initRedis(settings);
         setLoaded(true);
@@ -58,8 +52,8 @@ public class AnsjElasticConfigurator {
     
     private static void initRedis(final Settings settings) {
 		if(null==settings.get("redis.ip")){
-			logger.info("没有找到redis相关配置!");
-			return;
+            logger.info("No Redis config found, Redis support disabled.");
+            return;
 		}
 		new Thread(new  Runnable() {
 			@Override
@@ -70,15 +64,21 @@ public class AnsjElasticConfigurator {
 				int maxWait = settings.getAsInt("redis.pool.maxwait", redisPoolBuilder.getMaxWait());
 				boolean testOnBorrow = settings.getAsBoolean("redis.pool.testonborrow", redisPoolBuilder.isTestOnBorrow());
 				logger.debug("maxActive:"+maxActive+",maxIdle:"+maxIdle+",maxWait:"+maxWait+",testOnBorrow:"+testOnBorrow );
-				
-				String ipAndport = settings.get("redis.ip",redisPoolBuilder.getIpAddress());
-				int port = settings.getAsInt("redis.port", redisPoolBuilder.getPort());
-				String channel = settings.get("redis.channel","ansj_term");
-				logger.debug("ip:"+ipAndport+",port:"+port+",channel:"+channel);
-				
-				JedisPool pool = redisPoolBuilder.setMaxActive(maxActive).setMaxIdle(maxIdle).setMaxWait(maxWait).setTestOnBorrow(testOnBorrow)
-				.setIpAddress(ipAndport).setPort(port).jedisPool();
-				RedisUtils.setJedisPool(pool);
+
+                String ipAndport = settings.get("redis.ip", redisPoolBuilder.getIpAddress());
+                int port = settings.getAsInt("redis.port", redisPoolBuilder.getPort());
+                String channel = settings.get("redis.channel","ansj_term");
+                logger.debug("ip:" + ipAndport + ",port:" + port + ",channel:" + channel);
+                String password = settings.get("redis.password", null);
+                logger.info("Redis password set.");
+                if (password != null) {
+                    password = password.trim();
+                }
+                JedisPool pool = redisPoolBuilder.setMaxActive(maxActive).
+                        setMaxIdle(maxIdle).setMaxWait(maxWait).
+                        setTestOnBorrow(testOnBorrow).setPassword(password)
+                        .setIpAddress(ipAndport).setPort(port).jedisPool();
+                RedisUtils.setJedisPool(pool);
 				final Jedis jedis = RedisUtils.getConnection();
 				if(jedis == null){
                     logger.warn("Cannot get redis connection.");
@@ -138,7 +138,7 @@ public class AnsjElasticConfigurator {
         BufferedReader br;
         try {
             br = IOUtil.getReader(stopLibrary.getAbsolutePath(), "UTF-8");
-            String temp = null;
+            String temp;
             while ((temp = br.readLine()) != null) {
                 filters.add(temp);
             }
