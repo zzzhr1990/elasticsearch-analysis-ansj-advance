@@ -1,4 +1,8 @@
 ##前言
+本项目来自于 [https://github.com/4onni/elasticsearch-analysis-ansj]
+- 对落后的依赖进行了升级，并提高了一些性能。
+
+####以下是原作者的readme.md
 
 这是一个elasticsearch的中文分词插件，基于ansj，感谢本人，感谢群内热心的朋友。
 并宣传一下我们的群QQ211682609
