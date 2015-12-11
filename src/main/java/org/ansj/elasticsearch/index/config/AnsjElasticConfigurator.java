@@ -36,7 +36,7 @@ public class AnsjElasticConfigurator {
 		}
     	environment  =new Environment(indexSettings);
         initConfigPath(settings);
-        boolean enabledStopFilter = settings.getAsBoolean("enabled_stop_filter", false);
+        boolean enabledStopFilter = settings.getAsBoolean("enabled_stop_filter", true);
         if(enabledStopFilter) {
             loadFilter(settings);
         }
@@ -101,11 +101,11 @@ public class AnsjElasticConfigurator {
         //是否提取词干
         pstemming = settings.getAsBoolean("pstemming", false);
         //用户自定义辞典
-        File path = new File(environment.pluginsFile(),settings.get("user_path",DEFAULT_USER_LIB_PATH));
+        File path = new File(environment.pluginsFile().toFile(),settings.get("user_path",DEFAULT_USER_LIB_PATH));
         MyStaticValue.userLibrary = path.getAbsolutePath();
         logger.debug("用户词典路径:{}",MyStaticValue.userLibrary );
         //用户自定义辞典
-        path = new File(environment.pluginsFile(),settings.get("ambiguity",DEFAULT_AMB_FILE_LIB_PATH));
+        path = new File(environment.pluginsFile().toFile(),settings.get("ambiguity",DEFAULT_AMB_FILE_LIB_PATH));
         MyStaticValue.ambiguityLibrary = path.getAbsolutePath();
         logger.debug("歧义词典路径:{}",MyStaticValue.ambiguityLibrary );
 
@@ -125,7 +125,7 @@ public class AnsjElasticConfigurator {
             return;
         }
 
-        File stopLibrary = new File(environment.configFile(), stopLibraryPath);
+        File stopLibrary = new File(environment.pluginsFile().toFile(), stopLibraryPath);
         logger.debug("停止词典路径:{}",stopLibrary.getAbsolutePath() );
         if (!stopLibrary.isFile()) {
             logger.info("Can't find the file:" + stopLibraryPath

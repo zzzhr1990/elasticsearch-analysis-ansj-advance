@@ -1,12 +1,7 @@
 package org.ansj.elasticsearch.pubsub.redis;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -21,14 +16,14 @@ public class FileUtils {
 
 	  public static void remove(String content) {
 	    try {
-	      File file = new File(AnsjElasticConfigurator.environment.configFile(), "ansj/user/ext.dic");
-	      removeFile(content, file, false);
+	      File file = new File(AnsjElasticConfigurator.environment.configFile().toFile(), "ansj/user/ext.dic");
+            removeFile(content, file, false);
 	    }
 	    catch (FileNotFoundException e) {
-	      logger.error("file not found $ES_HOME/config/ansj/user/ext.dic", e, new Object[0]);
+	      logger.error("file not found $ES_HOME/config/ansj/user/ext.dic", e);
 	      e.printStackTrace();
 	    } catch (IOException e) {
-	      logger.error("read exception", e, new Object[0]);
+	      logger.error("read exception", e);
 	      e.printStackTrace();
 	    }
 	  }
@@ -36,24 +31,24 @@ public class FileUtils {
 	  public static void append(String content)
 	  {
 	    try {
-	      File file = new File(AnsjElasticConfigurator.environment.configFile(), "ansj/user/ext.dic");
+	      File file = new File(AnsjElasticConfigurator.environment.configFile().toFile(), "ansj/user/ext.dic");
 	      appendFile(content, file);
 	    } catch (IOException e) {
-	      logger.error("read exception", e, new Object[0]);
+	      logger.error("read exception", e);
 	      e.printStackTrace();
 	    }
 	  }
 
 	  public static void removeAMB(String content) {
 	    try {
-	      File file = new File(AnsjElasticConfigurator.environment.configFile(), "ansj/ambiguity.dic");
+	      File file = new File(AnsjElasticConfigurator.environment.configFile().toFile(), "ansj/ambiguity.dic");
 	      removeFile(content, file, true);
 	    }
 	    catch (FileNotFoundException e) {
-	      logger.error("file not found $ES_HOME/config/ansj/user/ext.dic", e, new Object[0]);
+	      logger.error("file not found $ES_HOME/config/ansj/user/ext.dic", e);
 	      e.printStackTrace();
 	    } catch (IOException e) {
-	      logger.error("read exception", e, new Object[0]);
+	      logger.error("read exception", e);
 	      e.printStackTrace();
 	    }
 	  }
@@ -61,10 +56,10 @@ public class FileUtils {
 	  public static void appendAMB(String content)
 	  {
 	    try {
-	      File file = new File(AnsjElasticConfigurator.environment.configFile(), "ansj/ambiguity.dic");
+	      File file = new File(AnsjElasticConfigurator.environment.configFile().toFile(), "ansj/ambiguity.dic");
 	      appendFile(content, file);
 	    } catch (IOException e) {
-	      logger.error("read exception", e, new Object[0]);
+	      logger.error("read exception", e);
 	      e.printStackTrace();
 	    }
 	  }
@@ -77,13 +72,13 @@ public class FileUtils {
 	    writer.close();
 	  }
 
-	  private static void removeFile(String content, File file, boolean head) throws FileNotFoundException, IOException
+	  private static void removeFile(String content, File file, boolean head) throws IOException
 	  {
 	    BufferedReader reader = new BufferedReader(new FileReader(file));
 	    List<String> list = new ArrayList<String>();
 	    String text = reader.readLine();
 	    while (text != null) {
-	      logger.info("match is {} text is{}", new Object[] { Boolean.valueOf(match(content, text, head)), text });
+	      logger.info("match is {} text is{}", match(content, text, head), text);
 	      if (match(content, text, head)) {
 	        list.add(text);
 	      }

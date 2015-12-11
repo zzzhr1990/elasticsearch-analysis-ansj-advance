@@ -15,19 +15,27 @@ import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AbstractTokenizerFactory;
-import org.elasticsearch.index.settings.IndexSettings;
+import org.elasticsearch.index.settings.IndexSettingsService;
+//import org.elasticsearch.index.settings;
 
 public class AnsjTokenizerFactory extends AbstractTokenizerFactory {
 
 	@Inject
-	 public AnsjTokenizerFactory(Index index,@IndexSettings Settings indexSettings,@Assisted String name, @Assisted Settings settings) {
-		super(index, indexSettings, name, settings);
-		init(indexSettings, settings);
+	 public AnsjTokenizerFactory(Index index, IndexSettingsService indexSettingsService, @Assisted String name, @Assisted Settings settings) {
+		super(index, indexSettingsService.getSettings(), name, settings);
+		init(indexSettingsService.getSettings(), settings);
 	}
 
+	//TODO: check this
+	/*
 	@Override
 	public Tokenizer create(Reader reader) {
 		return new AnsjTokenizer(new IndexAnalysis(new BufferedReader(reader)), reader, filter, pstemming);
 	}
 
+*/
+	@Override
+	public Tokenizer create() {
+		return null;
+	}
 }
