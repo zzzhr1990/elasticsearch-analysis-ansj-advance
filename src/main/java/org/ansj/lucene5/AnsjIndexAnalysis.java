@@ -28,6 +28,7 @@ public class AnsjIndexAnalysis extends Analyzer {
 
     protected TokenStreamComponents createComponents(String arg0) {
         // TODO Auto-generated method stub
+
         Tokenizer tokenizer = new AnsjTokenizer(new IndexAnalysis(), this.filter, this.pstemming);
         return new Analyzer.TokenStreamComponents(tokenizer);
     }
