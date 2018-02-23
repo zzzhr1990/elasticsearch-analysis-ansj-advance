@@ -7,10 +7,6 @@
 ####如果ES版本较低请使用原版！
 
 ####以下是原作者的readme.md
-
-这是一个elasticsearch的中文分词插件，基于ansj，感谢本人，感谢群内热心的朋友。
-并宣传一下我们的群QQ211682609
-
 ##版本对应
 
 | plugin        |     elasticsearch|
